@@ -17,108 +17,33 @@ public class Castle extends ChessPiece
         super(c, "c");
         color = c;
     }
-    public boolean detLegal(ChessPiece[][] pieces, int aYold, int aXold, int aYnew, int aXnew){
-        //sideways
-        boolean okToMove = false;
-        
-        if(aYold == aYnew || aXold == aXnew){
-            okToMove = true;
+    public boolean isOnBoard(int num) {
+        if(num>=0 && num<=7) {
+            return true;
         }
-        
-        if(okToMove == false){
-            return false;
-        }
-        okToMove = true;
-        if(aYnew == aYold){
-            //left:
-            if(aXold > aXnew){
-                for(int i = aXold -1; i>= aXnew; i--){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //right
-            if(aXold < aXnew){
-                for(int i = aXold + 1; i<= aXnew; i++){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-        }
-        //vetical
-        if(aXnew == aXold){
-            //up
-            if(aYold > aYnew){
-                for(int i = aYold - 1; i >= aYnew; i--){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //down
-            if(aYold < aYnew){
-                for(int i = aYold + 1; i <= aYnew; i++){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-        }
-        return okToMove;
+        return false;
     }
-    public boolean detToTake(ChessPiece[][] pieces, int aYold, int aXold, int aYnew, int aXnew){   
-        if(pieces[aYnew][aXnew].getColor().equals(color)){
-            return false;
-        }
-        boolean okToMove = true;
-        if(aYnew == aYold){
-            //left:
-            if(aXold > aXnew){
-                for(int i = aXold -1; i> aXnew; i--){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //right
-            if(aXold < aXnew){
-                for(int i = aXold + 1; i< aXnew; i++){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
+    public boolean [][] getLegalMoves(ChessPiece [][] pieces, int aYold, int aXold) {
+        boolean [][] legalMoves = new boolean[8][8];
+        int [] itsY = {-1,1,0,0};
+        int [] itsX = { 0,0,-1,1};
+        for(int i = 0; i < itsY.length; i++) {
+            int checkY = aYold + itsY[i];
+            int checkX = aXold + itsX[i];
+            while(isOnBoard(checkY) && isOnBoard(checkX)) {
+                if(pieces[checkY][checkX].getLength() == 0) {
+                    legalMoves[checkY][checkX] = true;
+                    checkY = checkY + itsY[i];
+                    checkX = checkX + itsX[i];
+                } 
+                else { 
+                    boolean sameColor = pieces[aYold][aXold].getColor().equals(pieces[checkY][checkX].getColor());
+                    legalMoves[checkY][checkX] = !sameColor;
+                    break;
                 }
             }
         }
-        //vetical
-        if(aXnew == aXold){
-            //up
-            if(aYold > aYnew){
-                for(int i = aYold - 1; i > aYnew; i--){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //down
-            if(aYold < aYnew){
-                for(int i = aYold + 1; i < aYnew; i++){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-        }
-        return okToMove;
+        return legalMoves;
     }
     public String getPiece(){
         return "Castle";

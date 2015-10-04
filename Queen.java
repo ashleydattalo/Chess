@@ -14,232 +14,37 @@ public class Queen extends ChessPiece
         super(c,"q");
         color = c;
     }
-    public boolean detLegal(ChessPiece [][] pieces, int aYold, int aXold, int aYnew, int aXnew){
-        boolean okToMove = false;
-        int j = 0;
-        //down
-        if(aYold < aYnew){
-            //left
-            j = aYold + 1;
-            for(int i = aXold-1; i>=aXnew; i--){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j++;
-            }
-            //right
-            j = aYold + 1;
-            for(int i = aXold+1; i<=aXnew; i++){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j++;
-            }
+    public boolean isOnBoard(int num) {
+        if(num>=0 && num<=7) {
+            return true;
         }
-        //down
-        if(aYold > aYnew){
-            //left
-            j = aYold - 1;
-            for(int i = aXold-1; i>=aXnew; i--){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j--;
-            }
-            //right
-            j = aYold - 1;
-            for(int i = aXold+1; i<=aXnew; i++){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j--;
-            }
-        }
-        if(aYold == aYnew || aXold == aXnew){
-            okToMove = true;
-        }
-        if(okToMove == false){
-                return false;
-        }
-        //bishops legal moves
-        //up
-        if(aYold > aYnew){
-             j = aYold -1;
-        }
-        //down
-        if(aYold < aYnew){
-            j = aYold + 1;
-        }
-        //right
-        if(aXnew > aXold){
-            for(int i = aXold + 1; i <= aXnew; i++){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
-                }
-            }
-        }
-        //left
-        if(aXnew < aXold){
-            for(int i = aXold - 1; i >= aXnew; i--){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
-                }
-            }
-        }
-        //castle legal moves
-        okToMove = true;
-        if(aYnew == aYold){
-            //left:
-            if(aXold > aXnew){
-                for(int i = aXold -1; i>= aXnew; i--){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //right
-            if(aXold < aXnew){
-                for(int i = aXold + 1; i<= aXnew; i++){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-        }
-        //vetical
-        if(aXnew == aXold){
-            //up
-            if(aYold > aYnew){
-                for(int i = aYold - 1; i >= aYnew; i--){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //down
-            if(aYold < aYnew){
-                for(int i = aYold + 1; i <= aYnew; i++){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-        }
-        return okToMove;
+        return false;
     }
-    public boolean detToTake(ChessPiece [][] pieces, int aYold, int aXold, int aYnew, int aXnew){
-        if(pieces[aYnew][aXnew].getColor().equals(color)){
-            return false;
-        }
-        //bishop
-        boolean okToMove = true;
-        int j = 0;
-        if(aYold > aYnew){
-             j = aYold -1;
-        }
-        //down
-        if(aYold < aYnew){
-            j = aYold + 1;
-        }
-        if(aXnew > aXold){
-            for(int i = aXold + 1; i < aXnew; i++){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
+    public boolean [][] getLegalMoves(ChessPiece [][] pieces, int aYold, int aXold) {
+        boolean [][] legalMoves = new boolean[8][8];
+        int [] itsY = {-1,1,-1,1,1,-1,0,0};
+        int [] itsX = {-1,-1,1,1,0,0,1,-1};
+        /*  ∆   LeftUp  LeftDn  RightUp  RightDn
+           dy:  -1       1      -1       1
+           dx:  -1      -1       1       1
+        */
+        for(int i = 0; i < itsY.length; i++) {
+            int checkY = aYold + itsY[i];
+            int checkX = aXold + itsX[i];
+            while(isOnBoard(checkY) && isOnBoard(checkX)) {
+                if(pieces[checkY][checkX].getLength() == 0) {
+                    legalMoves[checkY][checkX] = true;
+                    checkY = checkY + itsY[i];
+                    checkX = checkX + itsX[i];
+                } 
+                else { 
+                    boolean sameColor = pieces[aYold][aXold].getColor().equals(pieces[checkY][checkX].getColor());
+                    legalMoves[checkY][checkX] = !sameColor;
+                    break;
                 }
             }
         }
-        //left
-        if(aXnew < aXold){
-            for(int i = aXold - 1; i > aXnew; i--){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
-                }
-            }
-        }
-        
-        okToMove = true;
-        if(aYnew == aYold){
-            //left:
-            if(aXold > aXnew){
-                for(int i = aXold -1; i> aXnew; i--){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //right
-            if(aXold < aXnew){
-                for(int i = aXold + 1; i< aXnew; i++){
-                    int length = pieces[aYold][i].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-        }
-        //vetical
-        if(aXnew == aXold){
-            //up
-            if(aYold > aYnew){
-                for(int i = aYold - 1; i > aYnew; i--){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-            //down
-            if(aYold < aYnew){
-                for(int i = aYold + 1; i < aYnew; i++){
-                    int length = pieces[i][aXold].getLength();
-                    if(length > 0){
-                        okToMove = false;
-                    }
-                }
-            }
-        }
-        return okToMove;
+        return legalMoves;
     }
     public String getPiece(){
         return "Queen";

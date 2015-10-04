@@ -17,8 +17,8 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
     int mouseY = 0;
     
     //top Left Corner of ChessBoard
-    int topLeftX = 100;
-    int topLeftY = 100;
+    int topLeftX = 50;
+    int topLeftY = 50;
     
     //width and height of ChessBoard
     int widthBoard = 500;
@@ -50,7 +50,9 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
     
     ChessPiece pieceMoved = new ChessPiece("b","");
     ChessPiece pieceToMove = new ChessPiece("", "");
-
+    
+    boolean [][] legalMoves = new boolean[8][8];
+    
     public ChessGame(){
         //Fills the array of chess pieces with an empty string representing an 'empty chess piece'
         for(int j = 0; j<=7; j++){
@@ -60,14 +62,14 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
         }
         
         //declares location for white and black pawns if black is on top
-        if(blackOnTop == true){
+        if(blackOnTop){
             cTopAll = 0;
             cTopPawn = 1;
             cBottomPawn = 6;
             cBottomAll = 7;
         }
         //declares location for white and black pawns if white is on top    
-        if(blackOnTop == false){
+        else{
             cTopAll = 7;
             cTopPawn = 6;
             cBottomPawn = 1;
@@ -84,7 +86,7 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
         //fills black pieces:
         final String cBlack = "b";
         for(int i = 0; i<=7; i++){
-            arrPieces[cTopPawn][i] = new Pawn(cBlack);
+            //arrPieces[cTopPawn][i] = new Pawn(cBlack, blackOnTop);
         }
         arrPieces[cTopAll][0] = new Castle(cBlack);
         arrPieces[cTopAll][7] = new Castle(cBlack);   
@@ -98,7 +100,7 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
         //fills white Chess pieces
         final String cWhite = "w";
         for(int i = 0; i<=7; i++){
-            arrPieces[cBottomPawn][i] = new Pawn(cWhite);
+            //arrPieces[cBottomPawn][i] = new Pawn(cWhite, blackOnTop);
         }
         arrPieces[cBottomAll][0] = new Castle(cWhite);
         arrPieces[cBottomAll][7] = new Castle(cWhite);
@@ -119,21 +121,33 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
       Graphics2D g2 = (Graphics2D) g;
       setSize(widthBoard + topLeftX, heightBoard + topLeftY);
       g.clearRect(0, 0, 1000, 1000);
+      //DEBUGS
+      g.drawString(""+aYold +" x: " +aXold, 25,25);
+      
+      //DEBUGS
       
       //draws out the chessboard
       for(int j = 0; j<=7; j++){
           for(int i = 0 ; i<=7; i++){
               Rectangle oneTile = new Rectangle(topLeftX + widthSquare*i,topLeftY + heightSquare*j,widthSquare,heightSquare);
+              if(legalMoves[j][i]) {
+                  g2.setColor(Color.blue);
+                  g2.fill(oneTile);
+              }
+              else {
+                  g2.setColor(Color.white);  
+                  g2.fill(oneTile);
+              }
+              g2.setColor(Color.black);
               g2.draw(oneTile);
+              String name = arrPieces[j][i].getName();
+              g.drawString(name, topLeftX + widthSquare*i + spacerX,topLeftY + heightSquare*j +spacerY);
           }
       }
-      //draws out the name of the ChessPieces in the corrent location on the Board
-      for(int k = 0; k<= 7; k++){
-          for(int p = 0; p<=7; p++){
-              String name = arrPieces[k][p].getName();
-              g.drawString(name, topLeftX + widthSquare*p + spacerX,topLeftY + heightSquare*k +spacerY);
-            }
-      }
+      //shades in piece that player is trying to place it
+      g2.setColor(Color.gray);
+      Rectangle shadedTile = new Rectangle(getTopLeftX(aXnew), getTopLeftY(aYnew),widthSquare,heightSquare);
+      //g2.fill(shadedTile);
     }
     
     public void mouseClicked(MouseEvent e) {
@@ -143,7 +157,6 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
       detTurn();
       repaint();
     }
-    
     public void detClick(int x, int y){
         //cases
         int lenPieceClicked = arrPieces[getArrY(y)][getArrX(x)].getLength();
@@ -179,103 +192,39 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
     public void detTurn(){
         String colorPieceMoved = pieceMoved.getColor();
         String colorPieceToMove = pieceToMove.getColor();
-        if(colorPieceMoved.equals("b")){
-            if(colorPieceToMove.equals("w")){
-                movePieces();
-            }
-        }
-        if(colorPieceMoved.equals("w")){
-            if(colorPieceToMove.equals("b")){
-                movePieces();
-            }
-        }
+        if(!colorPieceMoved.equals(colorPieceToMove)) {
+            movePieces();
+        }   
     }
     
     public void movePieces(){
+        if(whichCase == 1) {
+            getLegalMoves();
+        }
         if(whichCase == 3){
-            boolean isLegalMove = legal(arrPieces, aYold, aXold, aYnew, aXnew);
+            //second click on empty piece
+            boolean isLegalMove = legalMoves[aYnew][aXnew];
             ChessPiece pieceToReplace = arrPieces[aYnew][aXnew];
-            if(isLegalMove == true){
+            if(isLegalMove){
                pieceMoved = arrPieces[aYold][aXold];
                arrPieces[aYnew][aXnew] = arrPieces[aYold][aXold];
                arrPieces[aYold][aXold] = pieceToReplace;
             } 
+            clearLegalMoves();
         }
         if(whichCase == 4){
-            boolean isLegalToTake = takePiece(arrPieces, aYold, aXold, aYnew, aXnew);
-            if(isLegalToTake == true){
+            //second click on diff piece
+            boolean isLegalToTake = legalMoves[aYnew][aXnew];
+            if(isLegalToTake){
                pieceMoved = arrPieces[aYold][aXold];
                arrPieces[aYnew][aXnew] = arrPieces[aYold][aXold];
                arrPieces[aYold][aXold] = new ChessPiece("","");
             } 
+            clearLegalMoves();
         }
     }
-   
-    public boolean legal(ChessPiece [][] pieces, int aYold, int aXold, int aYnew, int aXnew){
-        if(arrPieces[aYold][aXold].getClass() == Pawn.class){
-            String colorP = ((Pawn)(arrPieces[aYold][aXold])).getColor();
-            boolean legal = ((Pawn)(arrPieces[aYold][aXold])).detLegal(pieces,aYold, aXold, aYnew, aXnew, blackOnTop);
-            if(aYnew == 0 || aYnew == 7){
-                if(legal == true){
-                    arrPieces[aYold][aXold] = new Queen(colorP);
-                }
-            }
-            return legal;
-        }
-        if(arrPieces[aYold][aXold].getClass() == Bishop.class){
-            return ((Bishop)(arrPieces[aYold][aXold])).detLegal(pieces, aYold, aXold, aYnew, aXnew);
-        }
-        if(arrPieces[aYold][aXold].getClass() == Knight.class){
-            return ((Knight)(arrPieces[aYold][aXold])).detLegal(pieces, aYold, aXold, aYnew, aXnew);
-        }
-        if(arrPieces[aYold][aXold].getClass() == Castle.class){
-            return ((Castle)(arrPieces[aYold][aXold])).detLegal(pieces, aYold, aXold, aYnew, aXnew);
-        }
-        if(arrPieces[aYold][aXold].getClass() == King.class){
-            return ((King)(arrPieces[aYold][aXold])).detLegal(pieces, aYold, aXold, aYnew, aXnew);
-        }
-        if(arrPieces[aYold][aXold].getClass() == Queen.class){
-            return ((Queen)(arrPieces[aYold][aXold])).detLegal(pieces, aYold, aXold, aYnew, aXnew);
-        }
-        return false;
-    }
-    public boolean takePiece(ChessPiece [][] pieces, int aYold, int aXold, int aYnew, int aXnew){
-        if(arrPieces[aYold][aXold].getClass() == Pawn.class){
-            String colorP = ((Pawn)(arrPieces[aYold][aXold])).getColor();
-            boolean legal = ((Pawn)(arrPieces[aYold][aXold])).detToTake(pieces, aYold, aXold, aYnew, aXnew, blackOnTop);
-            if(aYnew == 0 || aYnew == 7){
-                if(legal == true){
-                    arrPieces[aYold][aXold] = new Queen(colorP);
-                }
-            }
-            return legal;
-        }
-        if(arrPieces[aYold][aXold].getClass() == Bishop.class){
-            return ((Bishop)(arrPieces[aYold][aXold])).detToTake(pieces, aYold, aXold, aYnew, aXnew);
-        }
-        if(arrPieces[aYold][aXold].getClass() == Knight.class){
-            boolean legal = ((Knight)(arrPieces[aYold][aXold])).detLegal(pieces, aYold, aXold, aYnew, aXnew);
-            boolean colorLegal =  ((Knight)(arrPieces[aYold][aXold])).detToTake(pieces, aYold, aXold, aYnew, aXnew);
-            if(legal == true && colorLegal == true){
-                return true;
-            }
-            return false;
-        }
-        if(arrPieces[aYold][aXold].getClass() == Castle.class){
-            return ((Castle)(arrPieces[aYold][aXold])).detToTake(pieces,aYold, aXold, aYnew, aXnew);
-        }
-        if(arrPieces[aYold][aXold].getClass() == King.class){
-            boolean legal = ((King)(arrPieces[aYold][aXold])).detLegal(pieces, aYold, aXold, aYnew, aXnew);
-            boolean colorLegal =  ((King)(arrPieces[aYold][aXold])).detToTake(pieces,aYold, aXold, aYnew, aXnew);
-            if(legal == true && colorLegal == true){
-                return true;
-            }
-            return false;
-        }
-        if(arrPieces[aYold][aXold].getClass() == Queen.class){
-            return ((Queen)(arrPieces[aYold][aXold])).detToTake(pieces,aYold, aXold, aYnew, aXnew);
-        }
-        return false;
+    public void getLegalMoves() {
+        legalMoves = arrPieces[aYold][aXold].getLegalMoves(arrPieces, aYold, aXold);
     }
     public int getArrX(int x){
         return (x - topLeftX)/widthSquare;
@@ -283,7 +232,19 @@ public class ChessGame extends JApplet implements MouseListener, MouseMotionList
     public int getArrY(int y){
         return (y - topLeftY)/heightSquare;
     }
-    
+    public int getTopLeftX(int arrX){
+        return widthSquare*arrX + topLeftX;
+    }
+    public int getTopLeftY(int arrY){
+        return heightSquare*arrY + topLeftY;
+    }
+    public void clearLegalMoves() {
+        for(int i = 0; i <= 7; i++) {
+            for(int j = 0; j <= 7; j++) {
+                legalMoves[i][j] = false;
+            }
+        }
+    }
     public void mouseMoved(MouseEvent e) {}
     public void mousePressed(MouseEvent e) {}
     public void mouseReleased(MouseEvent e) {}

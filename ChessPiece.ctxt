@@ -1,0 +1,17 @@
+#BlueJ class context
+comment0.params=c\ n
+comment0.target=ChessPiece(java.lang.String,\ java.lang.String)
+comment0.text=\n\ Constructor\ for\ objects\ of\ class\ ChessPiece\n
+comment1.params=
+comment1.target=java.lang.String\ getName()
+comment2.params=
+comment2.target=int\ getLength()
+comment3.params=n
+comment3.target=void\ setName(java.lang.String)
+comment4.params=
+comment4.target=java.lang.String\ getColor()
+comment5.params=
+comment5.target=java.lang.String\ getPiece()
+comment6.params=pieces\ aYold\ aXold
+comment6.target=boolean[][]\ getLegalMoves(ChessPiece[][],\ int,\ int)
+numComments=7

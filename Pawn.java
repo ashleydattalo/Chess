@@ -6,15 +6,48 @@
  */
 public class Pawn extends   ChessPiece
 {
-    public boolean okToMove = false;
-    public String color;
+    private boolean okToMove;
+    private String color;
+    private boolean blackOnTop;
     /**
      * Constructor for objects of class Pawn
      */
-    public Pawn(String c)
+    public Pawn(String c, boolean blackOnTop)
     {
         super(c,"p");
         color = c;
+        this.blackOnTop = blackOnTop;
+    }
+    public boolean isOnBoard(int num) {
+        if(num>=0 && num<=7) {
+            return true;
+        }
+        return false;
+    }
+    public boolean [][] getLegalMoves(ChessPiece [][] pieces, int aYold, int aXold) {
+        boolean [][] legalMoves = new boolean[8][8];
+        int [] itsY = {-1,1,-1,1,1,-1,0,0};
+        int [] itsX = {-1,-1,1,1,0,0,1,-1};
+        
+        
+        
+        for(int i = 0; i < itsY.length; i++) {
+            int checkY = aYold + itsY[i];
+            int checkX = aXold + itsX[i];
+            if(isOnBoard(checkY) && isOnBoard(checkX)) {
+                if(pieces[checkY][checkX].getLength() == 0) {
+                    legalMoves[checkY][checkX] = true;
+                    checkY = checkY + itsY[i];
+                    checkX = checkX + itsX[i];
+                } 
+                else { 
+                    boolean sameColor = pieces[aYold][aXold].getColor().equals(pieces[checkY][checkX].getColor());
+                    legalMoves[checkY][checkX] = !sameColor;
+                    break;
+                }
+            }
+        }
+        return legalMoves;
     }
     public boolean detLegal(ChessPiece pieces[][], int aYold, int aXold, int aYnew, int aXnew, boolean blackOnTop){
        int blackStart = 0;
@@ -138,6 +171,9 @@ public class Pawn extends   ChessPiece
             }
        }
         return false;
+    }
+    public void returnGrid(ChessPiece [][] pieces, int aYold, int aXold, int aYnew, int aXnew, boolean blackOnTop){
+        //return [][];
     }
     public String getPiece(){
         return "Pawn";

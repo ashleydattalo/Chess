@@ -1,9 +1,8 @@
-
 /**
- * Write a description of class Bishop here.
+ * Bishop class. Creates a bishop piece. Contains methods controlling bishop's ability to move
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @Ashley Dattalo
+ * @Aug. 1st, 2015
  */
 public class Bishop extends ChessPiece
 {
@@ -17,147 +16,51 @@ public class Bishop extends ChessPiece
         super(c, "b");
         color = c;
     }
-    public boolean detLegal(ChessPiece [][] pieces, int aYold, int aXold, int aYnew, int aXnew){
-        boolean okToMove = false;
-        int j = 0;
-        //down
-        if(aYold < aYnew){
-            //left
-            j = aYold + 1;
-            for(int i = aXold-1; i>=aXnew; i--){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j++;
-            }
-            //right
-            j = aYold + 1;
-            for(int i = aXold+1; i<=aXnew; i++){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j++;
-            }
+    public boolean isOnBoard(int num) {
+        if(num>=0 && num<=7) {
+            return true;
         }
-        //down
-        if(aYold > aYnew){
-            //left
-            j = aYold - 1;
-            for(int i = aXold-1; i>=aXnew; i--){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j--;
-            }
-            //right
-            j = aYold - 1;
-            for(int i = aXold+1; i<=aXnew; i++){
-                if(i == aXnew && j == aYnew){
-                    okToMove = true;
-                }
-                j--;
-            }
-        }
-        if(okToMove == false){
-                return false;
-        }
-            
-        okToMove = true;
-        j = 0;
-        //up
-        if(aYold > aYnew){
-             j = aYold -1;
-        }
-        //down
-        if(aYold < aYnew){
-            j = aYold + 1;
-        }
-        //right
-        if(aXnew > aXold){
-            for(int i = aXold + 1; i <= aXnew; i++){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
-                }
-            }
-        }
-        //left
-        if(aXnew < aXold){
-            for(int i = aXold - 1; i >= aXnew; i--){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
-                }
-            }
-        }
-        
-        return okToMove;
+        return false;
     }
-    public boolean detToTake(ChessPiece [][] pieces, int aYold, int aXold, int aYnew, int aXnew){
-        if(pieces[aYnew][aXnew].getColor().equals(color)){
-            return false;
-        }
-        boolean okToMove = true;
-        //up
-        int j = 0;
-        if(aYold > aYnew){
-             j = aYold -1;
-        }
-        //down
-        if(aYold < aYnew){
-            j = aYold + 1;
-        }
-        if(aXnew > aXold){
-            for(int i = aXold + 1; i < aXnew; i++){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
-                }
-            }
-        }
-        //left
-        if(aXnew < aXold){
-            for(int i = aXold - 1; i > aXnew; i--){
-                int length = pieces[j][i].getLength();
-                if(length > 0){
-                    okToMove = false;
-                }
-                //up
-                if(aYold > aYnew){
-                    j--;
-                }
-                //down
-                if(aYold < aYnew){
-                    j++;
+    /*      LeftUp  LeftDn  RightUp  RightDn
+        dy:  -1       1      -1       1
+        dx:  -1      -1       1       1
+     */
+    /**
+     * Method to determine where a bishop can move.
+     * 
+     * @param pieces - the chess board populated with chess pieces
+     * @param aYold - the Y coordinate of the clicked bishop
+     * @param aXold - the X coordinate of the clicked bishop
+     * 
+     * @returns a boolean board - True: the bishop can move to that spot. 
+     *                            False: the bishop cannot move to that spot.
+     */
+    public boolean [][] getLegalMoves(ChessPiece [][] pieces, int aYold, int aXold) {
+        boolean [][] legalMoves = new boolean[8][8];
+        int [] itsY = {-1,1,-1,1};
+        int [] itsX = {-1,-1,1,1};
+        /*  ∆   LeftUp  LeftDn  RightUp  RightDn
+           dy:  -1       1      -1       1
+           dx:  -1      -1       1       1
+        */
+        for(int i = 0; i < itsY.length; i++) {
+            int checkY = aYold + itsY[i];
+            int checkX = aXold + itsX[i];
+            while(isOnBoard(checkY) && isOnBoard(checkX)) {
+                if(pieces[checkY][checkX].getLength() == 0) {
+                    legalMoves[checkY][checkX] = true;
+                    checkY = checkY + itsY[i];
+                    checkX = checkX + itsX[i];
+                } 
+                else { 
+                    boolean sameColor = pieces[aYold][aXold].getColor().equals(pieces[checkY][checkX].getColor());
+                    legalMoves[checkY][checkX] = !sameColor;
+                    break;
                 }
             }
         }
-        
-        return okToMove;
+        return legalMoves;
     }
     public String getPiece(){
         return "Bishop";

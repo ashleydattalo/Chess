@@ -17,47 +17,32 @@ public class King extends ChessPiece
         super(c, "ki");
         color = c;
     }
-    public boolean detLegal(ChessPiece pieces[][], int aYold, int aXold, int aYnew, int aXnew){
-        boolean okToMove = false;
-        if(aXnew == aXold){
-            if(aYold == aYnew +1){
-                okToMove = true;
-            }
-            if(aYold == aYnew -1){
-                okToMove = true;
-            }
+    public boolean isOnBoard(int num) {
+        if(num>=0 && num<=7) {
+            return true;
         }
-        if(aYnew == aYold){
-            if(aXold == aXnew +1){
-                okToMove = true;
-            }
-            if(aXold == aXnew -1){
-                okToMove = true;
-            }
-        }
-        if(aYnew == aYold+1){
-            if(aXnew == aXold +1){
-                okToMove = true;
-            }
-            if(aXnew == aXold -1){
-                okToMove = true;
-            }
-        }
-        if(aYnew == aYold-1){
-            if(aXnew == aXold +1){
-                okToMove = true;
-            }
-            if(aXnew == aXold -1){
-                okToMove = true;
-            }
-        }
-        return okToMove;
+        return false;
     }
-    public boolean detToTake(ChessPiece pieces[][], int aYold, int aXold, int aYnew, int aXnew){
-        if(pieces[aYnew][aXnew].getColor().equals(color)){
-            return false;
+    public boolean [][] getLegalMoves(ChessPiece [][] pieces, int aYold, int aXold) {
+        boolean [][] legalMoves = new boolean[8][8];
+        int [] itsY = {-1,1,0,0,1,1,-1,-1};
+        int [] itsX = { 0,0,-1,1,-1,1,1,-1};
+        for(int i = 0; i < itsY.length; i++) {
+            int checkY = aYold + itsY[i];
+            int checkX = aXold + itsX[i];
+            if(isOnBoard(checkY) && isOnBoard(checkX)) {
+                if(pieces[checkY][checkX].getLength() == 0) {
+                    legalMoves[checkY][checkX] = true;
+                    checkY = checkY + itsY[i];
+                    checkX = checkX + itsX[i];
+                } 
+                else { 
+                    boolean sameColor = pieces[aYold][aXold].getColor().equals(pieces[checkY][checkX].getColor());
+                    legalMoves[checkY][checkX] = !sameColor;
+                }
+            }
         }
-        return true;
+        return legalMoves;
     }
     public String getPiece(){
         return "King";

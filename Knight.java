@@ -1,9 +1,9 @@
 
 /**
- * Write a description of class Knight here.
+ * Knight class. Creates a knight piece. Contains methods controlling knight's ability to move
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @Ashley Dattalo
+ * @Aug 1, 2015
  */
 public class Knight extends ChessPiece
 {
@@ -17,35 +17,43 @@ public class Knight extends ChessPiece
         super(c, "k");
         color = c;
     }
-    public boolean detLegal(ChessPiece pieces[][], int aYold, int aXold, int aYnew, int aXnew){
-        boolean okToMove = false;
-        if(aYold == aYnew +1){
-            if(aXnew == aXold +2 || aXnew == aXold -2){
-                okToMove = true;
-            }
+    public boolean isOnBoard(int num) {
+        if(num>=0 && num<=7) {
+            return true;
         }
-        if(aYold == aYnew + 2){
-            if(aXnew == aXold +1 || aXnew == aXold -1){
-                okToMove = true;
-            }
-        }
-        if(aYold == aYnew - 1){
-            if(aXnew == aXold +2 || aXnew == aXold -2){
-                okToMove = true;
-            }
-        }
-        if(aYold == aYnew - 2){
-            if(aXnew == aXold +1 || aXnew == aXold -1){
-                okToMove = true;
-            }
-        }
-        return okToMove;
+        return false;
     }
-    public boolean detToTake(ChessPiece pieces[][], int aYold, int aXold, int aYnew, int aXnew){
-        if(pieces[aYnew][aXnew].getColor().equals(color)){
-            return false;
+     /**
+     * Method to determine where a knight can move.
+     * 
+     * @param pieces - the chess board populated with chess pieces
+     * @param aYold - the Y coordinate of the clicked bishop
+     * @param aXold - the X coordinate of the clicked bishop
+     * 
+     * @returns a boolean board - True: the bishop can move to that spot. 
+     *                            False: the bishop cannot move to that spot.
+     */
+    public boolean [][] getLegalMoves(ChessPiece [][] pieces, int aYold, int aXold) {
+        boolean [][] legalMoves = new boolean[8][8];
+        int [] itsY = {-1,-2, 1, 2, 1, 2,-1,-2 };
+        int [] itsX = { 2, 1, 2, 1,-2,-1, -2,-1 };
+        
+        for(int i = 0; i < itsY.length; i++) {
+            int checkY = aYold + itsY[i];
+            int checkX = aXold + itsX[i];
+            if(isOnBoard(checkY) && isOnBoard(checkX)) {
+                if(pieces[checkY][checkX].getLength() == 0){
+                    legalMoves[checkY][checkX] = true;
+                }
+                else {
+                    String knightColor = pieces[aYold][aXold].getColor();
+                    String otherCol = pieces[checkY][checkX].getColor();
+                    boolean equalCols = knightColor.equals(otherCol);
+                    legalMoves[checkY][checkX] = !equalCols;
+                }
+            }
         }
-        return true;
+        return legalMoves;
     }
     public String getPiece(){
         return "Knight";

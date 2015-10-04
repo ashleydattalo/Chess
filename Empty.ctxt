@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.params=c
+comment0.target=Empty(java.lang.String)
+comment0.text=\n\ Constructor\ for\ objects\ of\ class\ Empty\n
+comment1.params=aYold\ aXold\ aYnew\ aXnew
+comment1.target=boolean\ detLegal(int,\ int,\ int,\ int)
+comment2.params=
+comment2.target=java.lang.String\ getPiece()
+numComments=3

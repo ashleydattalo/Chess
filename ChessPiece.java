@@ -42,5 +42,12 @@ public class ChessPiece
     public String getColor(){
         return color;
     }
+    public String getPiece(){
+        return "";
+    }
+    public boolean [][] getLegalMoves( ChessPiece [][] pieces, int aYold, int aXold) {
+        boolean [][] empty = new boolean[8][8];
+        return empty;
+    }
 }
 

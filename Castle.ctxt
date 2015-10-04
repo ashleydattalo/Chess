@@ -1,0 +1,11 @@
+#BlueJ class context
+comment0.params=c
+comment0.target=Castle(java.lang.String)
+comment0.text=\n\ Constructor\ for\ objects\ of\ class\ Castle\n
+comment1.params=num
+comment1.target=boolean\ isOnBoard(int)
+comment2.params=pieces\ aYold\ aXold
+comment2.target=boolean[][]\ getLegalMoves(ChessPiece[][],\ int,\ int)
+comment3.params=
+comment3.target=java.lang.String\ getPiece()
+numComments=4
